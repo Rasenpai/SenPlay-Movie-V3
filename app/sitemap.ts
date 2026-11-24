@@ -6,7 +6,6 @@ import { getLatestSeries } from "@/lib/series";
 import { episodeHref, getSeries } from "@/lib/seriesDetail";
 import { absoluteUrl } from "@/lib/site";
 
-export const revalidate = 3600;
 
 const LATEST_PAGES = 20; 
 const CATEGORY_PAGES = 10; 
