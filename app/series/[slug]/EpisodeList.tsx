@@ -123,11 +123,15 @@ function SeasonPicker({
 export default function EpisodeList({
   slug,
   seasons,
+  current,
 }: {
   slug: string;
   seasons: Season[];
+  current?: { season: number; episode: number };
 }) {
-  const [seasonNo, setSeasonNo] = useState(seasons[0]?.season ?? 1);
+  const [seasonNo, setSeasonNo] = useState(
+    current?.season ?? seasons[0]?.season ?? 1,
+  );
   const [newestFirst, setNewestFirst] = useState(false);
 
   const episodes = useMemo(() => {
@@ -167,56 +171,73 @@ export default function EpisodeList({
         key={seasonNo}
         className="grid grid-cols-1 gap-x-4 gap-y-6 px-5 sm:grid-cols-2 md:grid-cols-3 md:px-12 xl:grid-cols-4 2xl:grid-cols-6 animate-[hero-in_300ms_ease-out_both]"
       >
-        {episodes.map((ep) => (
-          <li key={ep.slug}>
-            <Link href={episodeHref(slug, ep)} className="group block">
-              <div className="relative aspect-video overflow-hidden rounded-xl bg-surface">
-                {ep.poster ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={resizeImage(ep.poster, "w500")}
-                    alt={ep.title}
-                    loading="lazy"
-                    draggable={false}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div
-                    aria-hidden="true"
-                    className="flex h-full w-full items-center justify-center bg-surface-hover text-2xl font-bold text-border"
-                  >
+        {episodes.map((ep) => {
+          const isCurrent =
+            current?.season === ep.season && current?.episode === ep.episode;
+
+          return (
+            <li key={ep.slug}>
+              <Link
+                href={episodeHref(slug, ep)}
+                aria-current={isCurrent ? "page" : undefined}
+                className="group block"
+              >
+                <div
+                  className={`relative aspect-video overflow-hidden rounded-xl bg-surface ${
+                    isCurrent ? "ring-2 ring-accent" : ""
+                  }`}
+                >
+                  {ep.poster ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resizeImage(ep.poster, "w500")}
+                      alt={ep.title}
+                      loading="lazy"
+                      draggable={false}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="flex h-full w-full items-center justify-center bg-surface-hover text-2xl font-bold text-border"
+                    >
+                      {ep.code}
+                    </div>
+                  )}
+
+                  <span className="absolute left-2 top-2 whitespace-nowrap rounded-md bg-text px-2 py-0.5 text-[11px] font-bold tracking-wide text-bg shadow-sm shadow-black/40">
                     {ep.code}
-                  </div>
-                )}
-
-                <span className="absolute left-2 top-2 whitespace-nowrap rounded-md bg-text px-2 py-0.5 text-[11px] font-bold tracking-wide text-bg shadow-sm shadow-black/40">
-                  {ep.code}
-                </span>
-                <span className="absolute right-2 top-2 whitespace-nowrap rounded-md bg-bg/80 px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
-                  {ep.releaseDate}
-                </span>
-
-                {ep.rating && (
-                  <span className="absolute bottom-2 left-2 rounded-md bg-rating px-2 py-0.5 text-[11px] font-bold text-bg">
-                    ★ {ep.rating}
                   </span>
-                )}
-                {ep.duration && (
-                  <span className="absolute bottom-2 right-2 rounded-md bg-bg/80 px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
-                    {ep.duration}
+                  <span className="absolute right-2 top-2 whitespace-nowrap rounded-md bg-bg/80 px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
+                    {ep.releaseDate}
                   </span>
-                )}
-              </div>
 
-              <h3 className="mt-2 truncate text-sm font-semibold group-hover:text-accent-text">
-                {ep.title}
-              </h3>
-              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">
-                {ep.description}
-              </p>
-            </Link>
-          </li>
-        ))}
+                  {ep.rating && (
+                    <span className="absolute bottom-2 left-2 rounded-md bg-rating px-2 py-0.5 text-[11px] font-bold text-bg">
+                      ★ {ep.rating}
+                    </span>
+                  )}
+                  {ep.duration && (
+                    <span className="absolute bottom-2 right-2 rounded-md bg-bg/80 px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
+                      {ep.duration}
+                    </span>
+                  )}
+                </div>
+
+                <h3
+                  className={`mt-2 truncate text-sm font-semibold group-hover:text-accent-text ${
+                    isCurrent ? "text-accent-text" : ""
+                  }`}
+                >
+                  {ep.title}
+                </h3>
+                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">
+                  {ep.description}
+                </p>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
