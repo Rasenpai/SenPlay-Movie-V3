@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 const NOTCH = 12;
@@ -52,14 +52,11 @@ const ERRORS: Record<string, string> = {
   token: "Gagal masuk. Coba lagi ya.",
 };
 
-export default function LoginForm() {
+export default function LoginForm({ errorKey }: { errorKey?: string }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const key = new URLSearchParams(window.location.search).get("error");
-    if (key) setError(ERRORS[key] ?? "Gagal masuk. Coba lagi ya.");
-  }, []);
+  const [error, setError] = useState(
+    errorKey ? (ERRORS[errorKey] ?? "Gagal masuk. Coba lagi ya.") : "",
+  );
 
   // Redirect penuh (bukan popup) supaya jalan juga di WebView aplikasi.
   const handleGoogle = () => {

@@ -9,13 +9,18 @@ async function RedirectIfLoggedIn() {
   return null;
 }
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   return (
     <>
       <Suspense fallback={null}>
         <RedirectIfLoggedIn />
       </Suspense>
-      <LoginForm />
+      <LoginForm errorKey={error} />
     </>
   );
 }
