@@ -129,7 +129,7 @@ function Linkified({ text }: { text: string }) {
               rel="noopener noreferrer nofollow ugc"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
-              className="break-all text-sky-400 underline underline-offset-2 hover:text-sky-300"
+              className="text-sky-400 underline underline-offset-2 [overflow-wrap:anywhere] hover:text-sky-300"
             >
               {url}
             </a>
@@ -383,7 +383,7 @@ export default function ChatRoom() {
           path={ICONS.warn}
           className="mt-0.5 h-5 w-5 shrink-0 text-rating"
         />
-        <p>
+        <p className="min-w-0">
           Hati-hati banyak scam, jangan mudah percaya orang lain, dan dilarang
           berjualan di sini.
         </p>
@@ -415,7 +415,7 @@ export default function ChatRoom() {
           stick.current =
             el.scrollHeight - el.scrollTop - el.clientHeight < 120;
         }}
-        className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain"
+        className="mt-3 min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain"
       >
         {!loaded ? (
           <div className="space-y-3">
@@ -448,7 +448,7 @@ export default function ChatRoom() {
                     </li>
                   )}
                   <li
-                    className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}
+                    className={`flex min-w-0 items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}
                   >
                     <Link
                       href={`/user/${m.userId}`}
@@ -468,21 +468,21 @@ export default function ChatRoom() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") openMenu(m);
                       }}
-                      className={`max-w-[80%] cursor-pointer rounded-2xl px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                      className={`min-w-0 max-w-[80%] cursor-pointer rounded-2xl px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                         mine
                           ? "rounded-br-md bg-accent/20"
                           : "rounded-bl-md bg-surface"
                       }`}
                     >
                       {m.replyTo && (
-                        <div className="mb-1.5 rounded-lg border-l-4 border-accent bg-bg/40 px-2.5 py-1.5">
+                        <div className="mb-1.5 min-w-0 overflow-hidden rounded-lg border-l-4 border-accent bg-bg/40 px-2.5 py-1.5">
                           <p
                             className="truncate text-xs font-semibold"
                             style={{ color: nameColor(m.replyTo.name) }}
                           >
                             {m.replyTo.name}
                           </p>
-                          <p className="truncate text-xs text-muted">
+                          <p className="line-clamp-2 text-xs text-muted [overflow-wrap:anywhere]">
                             {m.replyTo.content}
                           </p>
                         </div>
@@ -494,7 +494,7 @@ export default function ChatRoom() {
                         <span className="truncate">{m.name}</span>
                         {m.isAdmin && <Verified />}
                       </p>
-                      <p className="whitespace-pre-wrap break-words text-sm text-text">
+                      <p className="whitespace-pre-wrap text-sm text-text [overflow-wrap:anywhere]">
                         <Linkified text={m.content} />
                       </p>
                       <p className="mt-1 text-right text-[10px] text-muted">
@@ -605,7 +605,7 @@ export default function ChatRoom() {
 
         {selected && (
           <div className="mx-5 mt-4 border-b border-border pb-4">
-            <div className="border-l-4 border-accent pl-3">
+            <div className="min-w-0 border-l-4 border-accent pl-3">
               <p
                 className="flex items-center gap-1 text-sm font-semibold"
                 style={{ color: nameColor(selected.userId) }}
@@ -613,7 +613,7 @@ export default function ChatRoom() {
                 <span className="truncate">{selected.name}</span>
                 {selected.isAdmin && <Verified />}
               </p>
-              <p className="line-clamp-2 break-words text-sm text-muted">
+              <p className="line-clamp-2 text-sm text-muted [overflow-wrap:anywhere]">
                 {selected.content}
               </p>
             </div>
