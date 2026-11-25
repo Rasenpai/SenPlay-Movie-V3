@@ -1,9 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Script from "next/script";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 const NOTCH = 12;
 
@@ -22,24 +20,6 @@ const SPROCKET: React.CSSProperties = {
     "linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent)",
   WebkitMaskImage:
     "linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent)",
-};
-
-type CodeClient = { requestCode: () => void };
-
-type GoogleWindow = Window & {
-  google?: {
-    accounts: {
-      oauth2: {
-        initCodeClient: (config: {
-          client_id: string;
-          scope: string;
-          ux_mode: "popup";
-          callback: (res: { code?: string; error?: string }) => void;
-          error_callback?: () => void;
-        }) => CodeClient;
-      };
-    };
-  };
 };
 
 function GoogleIcon() {
@@ -65,61 +45,31 @@ function GoogleIcon() {
   );
 }
 
+const ERRORS: Record<string, string> = {
+  cancelled: "Login dibatalkan.",
+  state: "Sesi login kedaluwarsa. Coba lagi ya.",
+  code: "Gagal masuk. Coba lagi ya.",
+  token: "Gagal masuk. Coba lagi ya.",
+};
+
 export default function LoginForm() {
-  const router = useRouter();
-  const clientRef = useRef<CodeClient | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const initClient = () => {
-    const google = (window as GoogleWindow).google;
-    if (!google) return;
+  useEffect(() => {
+    const key = new URLSearchParams(window.location.search).get("error");
+    if (key) setError(ERRORS[key] ?? "Gagal masuk. Coba lagi ya.");
+  }, []);
 
-    clientRef.current = google.accounts.oauth2.initCodeClient({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      scope: "openid email profile",
-      ux_mode: "popup",
-      callback: async ({ code }) => {
-        if (!code) {
-          setLoading(false);
-          return;
-        }
-        try {
-          const res = await fetch("/api/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code }),
-          });
-          if (!res.ok) throw new Error();
-          router.replace("/");
-          router.refresh();
-        } catch {
-          setError("Gagal masuk. Coba lagi ya.");
-          setLoading(false);
-        }
-      },
-      error_callback: () => setLoading(false),
-    });
-  };
-
+  // Redirect penuh (bukan popup) supaya jalan juga di WebView aplikasi.
   const handleGoogle = () => {
-    if (!clientRef.current) {
-      setError("Google belum siap, coba sebentar lagi.");
-      return;
-    }
     setError("");
     setLoading(true);
-    clientRef.current.requestCode();
+    window.location.assign("/api/auth/google");
   };
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-12 pt-28">
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        strategy="afterInteractive"
-        onReady={initClient}
-      />
-
       <div
         aria-hidden="true"
         style={SPROCKET}
