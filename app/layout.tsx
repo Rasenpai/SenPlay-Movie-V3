@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import SiteNavbar from "@/components/SiteNavbar";
 import Footer from "@/components/Footer";
+import HideOnRoutes from "@/components/HideOnRoutes";
 import JsonLd from "@/components/JsonLd";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -20,6 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 const DEFAULT_TITLE = "Nonton Film dan Series Sub Indo - SenPlay";
+
+const BARE_ROUTES = ["/chat"];
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,8 +59,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#141110",
   colorScheme: "dark",
+  viewportFit: "cover",
 };
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -84,12 +87,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           speed={300}
         />
 
-        <Suspense fallback={null}>
-          <SiteNavbar />
-        </Suspense>
+        <HideOnRoutes routes={BARE_ROUTES}>
+          <Suspense fallback={null}>
+            <SiteNavbar />
+          </Suspense>
+        </HideOnRoutes>
         <Protect />
         {children}
-        <Footer />
+        <HideOnRoutes routes={BARE_ROUTES}>
+          <Footer />
+        </HideOnRoutes>
       </body>
     </html>
   );

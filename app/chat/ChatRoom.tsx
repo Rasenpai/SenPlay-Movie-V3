@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ChatAvatar from "@/components/ChatAvatar";
@@ -94,6 +94,52 @@ const clock = (seconds: number) =>
       timeZone: "Asia/Jakarta",
     })
     .replace(".", ":");
+
+const dayKey = (seconds: number) =>
+  new Date(seconds * 1000).toLocaleDateString("en-CA", {
+    timeZone: "Asia/Jakarta",
+  });
+
+const dayLabel = (seconds: number) =>
+  new Date(seconds * 1000).toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+
+const URL_RE = /((?:https?:\/\/|www\.)[^\s<]+)/gi;
+
+function Linkified({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(URL_RE).map((part, i) => {
+        if (i % 2 === 0) return part;
+
+        const trailing = part.match(/[.,!?;:)\]]+$/)?.[0] ?? "";
+        const url = trailing ? part.slice(0, -trailing.length) : part;
+        const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+
+        return (
+          <span key={i}>
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer nofollow ugc"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="break-all text-sky-400 underline underline-offset-2 hover:text-sky-300"
+            >
+              {url}
+            </a>
+            {trailing}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 export default function ChatRoom() {
   const router = useRouter();
@@ -386,65 +432,77 @@ export default function ChatRoom() {
           </p>
         ) : (
           <ul className="space-y-3 pb-2">
-            {messages.map((m) => {
+            {messages.map((m, i) => {
               const mine = m.userId === meId;
+              const newDay =
+                i === 0 ||
+                dayKey(messages[i - 1].createdAt) !== dayKey(m.createdAt);
+
               return (
-                <li
-                  key={m.id}
-                  className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}
-                >
-                  <Link
-                    href={`/user/${m.userId}`}
-                    aria-label={`Lihat profil ${m.name}`}
-                    className="shrink-0 rounded-full outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-accent"
+                <Fragment key={m.id}>
+                  {newDay && (
+                    <li className="flex justify-center py-1">
+                      <span className="rounded-full bg-surface px-3 py-1 text-[11px] font-semibold text-muted">
+                        {dayLabel(m.createdAt)}
+                      </span>
+                    </li>
+                  )}
+                  <li
+                    className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}
                   >
-                    <ChatAvatar name={m.name} src={m.avatar} />
-                  </Link>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => openMenu(m)}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      openMenu(m);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") openMenu(m);
-                    }}
-                    className={`max-w-[80%] cursor-pointer rounded-2xl px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                      mine
-                        ? "rounded-br-md bg-accent/20"
-                        : "rounded-bl-md bg-surface"
-                    }`}
-                  >
-                    {m.replyTo && (
-                      <div className="mb-1.5 rounded-lg border-l-4 border-accent bg-bg/40 px-2.5 py-1.5">
-                        <p
-                          className="truncate text-xs font-semibold"
-                          style={{ color: nameColor(m.replyTo.name) }}
-                        >
-                          {m.replyTo.name}
-                        </p>
-                        <p className="truncate text-xs text-muted">
-                          {m.replyTo.content}
-                        </p>
-                      </div>
-                    )}
-                    <p
-                      className="flex items-center gap-1 text-sm font-semibold"
-                      style={{ color: nameColor(m.userId) }}
+                    <Link
+                      href={`/user/${m.userId}`}
+                      aria-label={`Lihat profil ${m.name}`}
+                      className="shrink-0 rounded-full outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-accent"
                     >
-                      <span className="truncate">{m.name}</span>
-                      {m.isAdmin && <Verified />}
-                    </p>
-                    <p className="whitespace-pre-wrap break-words text-sm text-text">
-                      {m.content}
-                    </p>
-                    <p className="mt-1 text-right text-[10px] text-muted">
-                      {clock(m.createdAt)}
-                    </p>
-                  </div>
-                </li>
+                      <ChatAvatar name={m.name} src={m.avatar} />
+                    </Link>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => openMenu(m)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        openMenu(m);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") openMenu(m);
+                      }}
+                      className={`max-w-[80%] cursor-pointer rounded-2xl px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        mine
+                          ? "rounded-br-md bg-accent/20"
+                          : "rounded-bl-md bg-surface"
+                      }`}
+                    >
+                      {m.replyTo && (
+                        <div className="mb-1.5 rounded-lg border-l-4 border-accent bg-bg/40 px-2.5 py-1.5">
+                          <p
+                            className="truncate text-xs font-semibold"
+                            style={{ color: nameColor(m.replyTo.name) }}
+                          >
+                            {m.replyTo.name}
+                          </p>
+                          <p className="truncate text-xs text-muted">
+                            {m.replyTo.content}
+                          </p>
+                        </div>
+                      )}
+                      <p
+                        className="flex items-center gap-1 text-sm font-semibold"
+                        style={{ color: nameColor(m.userId) }}
+                      >
+                        <span className="truncate">{m.name}</span>
+                        {m.isAdmin && <Verified />}
+                      </p>
+                      <p className="whitespace-pre-wrap break-words text-sm text-text">
+                        <Linkified text={m.content} />
+                      </p>
+                      <p className="mt-1 text-right text-[10px] text-muted">
+                        {clock(m.createdAt)}
+                      </p>
+                    </div>
+                  </li>
+                </Fragment>
               );
             })}
           </ul>

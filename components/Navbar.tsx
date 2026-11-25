@@ -42,6 +42,10 @@ const NAV_ITEMS: NavItem[] = [
 const SEARCH_ICON = "M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-4.3-4.3";
 const MENU_ICON = "M4 7h16M4 12h16M4 17h16";
 
+const APK_HREF = "/apk";
+const ANDROID_ICON =
+  "M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.43 11.43 0 00-8.94 0L5.65 5.67c-.19-.29-.58-.38-.87-.2-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 001 18h22a10.78 10.78 0 00-5.4-8.52zM7 15.25a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm10 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z";
+
 const CLOSE_DISTANCE_RATIO = 0.3;
 const CLOSE_VELOCITY = 0.6;
 
@@ -69,6 +73,19 @@ function Icon({
       aria-hidden="true"
     >
       <path d={path} />
+    </svg>
+  );
+}
+
+function AndroidIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d={ANDROID_ICON} />
     </svg>
   );
 }
@@ -210,6 +227,8 @@ export default function Navbar({
     };
   }, [menuOpen, closeMenu]);
 
+  const apkActive = isActive(pathname, APK_HREF);
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-12">
       <div
@@ -259,6 +278,18 @@ export default function Navbar({
           </button>
 
           <NotificationPopover onOpen={closeMenu} />
+
+          <Link
+            href={APK_HREF}
+            aria-label="Halaman download aplikasi Android"
+            aria-current={apkActive ? "page" : undefined}
+            className={`hidden h-10 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition-colors hover:bg-surface-hover md:flex ${
+              apkActive ? "text-accent-text" : "text-text"
+            }`}
+          >
+            <AndroidIcon className="h-5 w-5 text-accent-text" />
+            APK
+          </Link>
 
           <div className="hidden md:block">
             <AccountMenu user={user} loading={loading} onOpen={closeMenu} />
@@ -322,6 +353,20 @@ export default function Navbar({
                 onClick={closeMenu}
               />
             ))}
+
+            <Link
+              href={APK_HREF}
+              onClick={closeMenu}
+              aria-current={apkActive ? "page" : undefined}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                apkActive
+                  ? "bg-accent/15 text-accent-text"
+                  : "text-text/80 hover:bg-surface-hover hover:text-text"
+              }`}
+            >
+              <AndroidIcon />
+              APK
+            </Link>
           </div>
 
           <div className="mt-3 space-y-2">

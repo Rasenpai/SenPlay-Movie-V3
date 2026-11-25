@@ -55,18 +55,6 @@ export default async function Home() {
             className="object-cover"
           />
         </div>
-
-        <div className="flex flex-col items-center justify-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-widest text-muted/60">
-            Iklan
-          </span>
-          <div className="min-[1600px]:hidden">
-            <AdBanner {...ADS.mobile} />
-          </div>
-          <div className="hidden min-[1600px]:block">
-            <AdBanner {...ADS.desktop} />
-          </div>
-        </div>
       </section>
 
       <div className="mx-auto max-w-6xl px-5 md:px-12">
