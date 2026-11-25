@@ -9,18 +9,28 @@ async function RedirectIfLoggedIn() {
   return null;
 }
 
-export default async function LoginPage({
+async function Form({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
+  return <LoginForm errorKey={error} />;
+}
+
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   return (
     <>
       <Suspense fallback={null}>
         <RedirectIfLoggedIn />
       </Suspense>
-      <LoginForm errorKey={error} />
+      <Suspense fallback={<LoginForm />}>
+        <Form searchParams={searchParams} />
+      </Suspense>
     </>
   );
 }
