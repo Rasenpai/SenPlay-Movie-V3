@@ -61,6 +61,7 @@ export const viewport: Viewport = {
   colorScheme: "dark",
   viewportFit: "cover",
 };
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -87,16 +88,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           speed={300}
         />
 
-        <HideOnRoutes routes={BARE_ROUTES}>
-          <Suspense fallback={null}>
+        <Suspense fallback={null}>
+          <HideOnRoutes routes={BARE_ROUTES}>
             <SiteNavbar />
-          </Suspense>
-        </HideOnRoutes>
+          </HideOnRoutes>
+        </Suspense>
         <Protect />
         {children}
-        <HideOnRoutes routes={BARE_ROUTES}>
-          <Footer />
-        </HideOnRoutes>
+        <Suspense fallback={null}>
+          <HideOnRoutes routes={BARE_ROUTES}>
+            <Footer />
+          </HideOnRoutes>
+        </Suspense>
       </body>
     </html>
   );
